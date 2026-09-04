@@ -6,4 +6,10 @@ FLUSH PRIVILEGES;
 
 USE task_manager;
 
--- Tabelas reais do projeto devem ser criadas durante a implementacao da aplicacao.
+CREATE TABLE IF NOT EXISTS tasks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  done BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
