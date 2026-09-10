@@ -1,53 +1,98 @@
 # Projeto 1 - Task Manager
 
-Base inicial 
+Projeto simples de gerenciamento de tarefas para a disciplina de Computacao em Nuvem.
 
-- VM `proxy`: NGINX como proxy reverso.
-- VM `app`: Node.js + Express para a aplicacao.
-- VM `db`: MySQL Server para o banco de dados.
+A aplicacao usa tres maquinas virtuais com Vagrant:
 
-## Arquitetura
+- `proxy`: entrada do sistema, usando NGINX como proxy reverso.
+- `app`: servidor da aplicacao, usando Node.js e Express.
+- `db`: banco de dados, usando MySQL.
 
-```text
-Browser
-  |
-  | HTTP :80
-  v
-proxy - 192.168.56.10 / 192.168.57.10
-  |
-  | HTTP :3000
-  v
-app - 192.168.57.11
-  |
-  | MySQL :3306
-  v
-db - 192.168.57.12
-```
+## Como executar
 
-## Como subir o ambiente
+Na pasta do projeto, rode:
 
 ```bash
 vagrant up
 ```
 
-Esta versao ainda nao implementa as funcionalidades reais do task manager. Ela apenas instala os pacotes base e deixa os arquivos iniciais organizados para desenvolvimento.
+Depois acesse no navegador:
+
+```text
+http://192.168.56.10
+```
+
+## Enderecos
+
+| Maquina | IP | Funcao |
+| --- | --- | --- |
+| proxy | 192.168.56.10 | acesso pelo navegador |
+| proxy | 192.168.57.10 | comunicacao com a rede interna |
+| app | 192.168.57.11 | servidor Node.js |
+| db | 192.168.57.12 | servidor MySQL |
+
+## Fluxo
+
+```text
+Navegador
+  -> proxy / NGINX
+  -> app / Node.js
+  -> db / MySQL
+```
+
+O usuario acessa apenas a VM `proxy`. O NGINX repassa as requisicoes para a VM `app`, e a aplicacao acessa o banco pela rede interna.
+
+## Rotas principais
+
+```text
+GET    /health
+GET    /db-health
+GET    /tasks
+POST   /tasks
+PUT    /tasks/:id
+DELETE /tasks/:id
+```
+
+## Testes rapidos
+
+Verificar se as VMs estao rodando:
+
+```bash
+vagrant status
+```
+
+Testar a API pelo proxy:
+
+```bash
+curl http://192.168.56.10/health
+curl http://192.168.56.10/tasks
+```
 
 ## Estrutura
 
 ```text
 .
-├── Vagrantfile
-├── app/
-│   ├── .env.example
-│   └── package.json
-├── db/
-│   └── init.sql
-├── infra/
-│   └── nginx/
-│       └── task-manager.conf
-└── scripts/
-    └── provision/
-        ├── app.sh
-        ├── db.sh
-        └── proxy.sh
+|-- Vagrantfile
+|-- app/
+|   |-- public/
+|   |-- src/
+|   |-- .env.example
+|   |-- package.json
+|   `-- package-lock.json
+|-- db/
+|   `-- init.sql
+|-- infra/
+|   `-- nginx/
+|       `-- task-manager.conf
+`-- scripts/
+    `-- provision/
+        |-- app.sh
+        |-- db.sh
+        `-- proxy.sh
 ```
+
+## Divisao geral
+
+- Configuracao do ambiente, Vagrant, NGINX e ajustes finais.
+- Rotas do backend e estrutura do banco.
+- Interface simples para usar o gerenciador de tarefas.
