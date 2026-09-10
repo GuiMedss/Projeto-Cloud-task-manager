@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <section class="task-panel">
+        <header class="header">
+          <div>
+            <h1>Task Manager</h1>
+            <p>Gerenciamento simples de tarefas</p>
+          </div>
+          <span id="status" class="status">Conectando...</span>
+        </header>
+
+        <form id="task-form" class="task-form">
+          <label for="title">Titulo</label>
+          <input id="title" name="title" type="text" maxlength="255" required>
+
+          <label for="description">Descricao</label>
+          <textarea id="description" name="description" rows="3"></textarea>
+
+          <button type="submit">Adicionar tarefa</button>
+        </form>
+
+        <section class="tasks-area" aria-labelledby="tasks-title">
+          <div class="tasks-header">
+            <h2 id="tasks-title">Tarefas</h2>
+            <button id="reload-button" class="secondary-button" type="button">Atualizar</button>
+          </div>
+          <ul id="task-list" class="task-list"></ul>
+          <p id="empty-message" class="empty-message">Nenhuma tarefa cadastrada.</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
