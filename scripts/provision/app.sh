@@ -6,12 +6,17 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y nodejs npm build-essential net-tools curl
 
-cd /vagrant/app
-npm install
-
 if [ ! -f /vagrant/app/.env ]; then
   cp /vagrant/app/.env.example /vagrant/app/.env
 fi
+
+rm -rf /opt/task-manager
+mkdir -p /opt/task-manager
+cp -r /vagrant/app/. /opt/task-manager/
+rm -rf /opt/task-manager/node_modules
+
+cd /opt/task-manager
+npm install
 
 cat >/etc/systemd/system/task-manager-app.service <<'SERVICE'
 [Unit]
@@ -20,8 +25,8 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/vagrant/app
-EnvironmentFile=/vagrant/app/.env
+WorkingDirectory=/opt/task-manager
+EnvironmentFile=/opt/task-manager/.env
 ExecStart=/usr/bin/npm start
 Restart=always
 RestartSec=5
