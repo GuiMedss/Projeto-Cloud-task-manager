@@ -32,6 +32,14 @@ app.get("/db-health", async (req, res) => {
   }
 });
 
+function idValido(valor) {
+  return /^\d+$/.test(valor);
+}
+
+function tituloValido(titulo) {
+  return typeof titulo === "string" && titulo.trim() !== "";
+}
+
 app.get("/tasks", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM tasks ORDER BY id");
@@ -43,13 +51,13 @@ app.get("/tasks", async (req, res) => {
 
 app.post("/tasks", async (req, res) => {
   const { title, description, done } = req.body;
-  if (!title) {
-    return res.status(400).json({ status: "error", message: "title is required" });
+  if (!tituloValido(title)) {
+    return res.status(400).json({ status: "error", message: "O titulo e obrigatorio e nao pode ser vazio" });
   }
   try {
     const [result] = await pool.query(
       "INSERT INTO tasks (title, description, done) VALUES (?, ?, ?)",
-      [title, description || null, done ? true : false]
+      [title.trim(), description || null, done ? true : false]
     );
     const [rows] = await pool.query("SELECT * FROM tasks WHERE id = ?", [result.insertId]);
     res.status(201).json(rows[0]);
@@ -59,17 +67,20 @@ app.post("/tasks", async (req, res) => {
 });
 
 app.put("/tasks/:id", async (req, res) => {
+  if (!idValido(req.params.id)) {
+    return res.status(400).json({ status: "error", message: "O id da tarefa deve ser um numero valido" });
+  }
   const { title, description, done } = req.body;
-  if (!title) {
-    return res.status(400).json({ status: "error", message: "title is required" });
+  if (!tituloValido(title)) {
+    return res.status(400).json({ status: "error", message: "O titulo e obrigatorio e nao pode ser vazio" });
   }
   try {
     const [result] = await pool.query(
       "UPDATE tasks SET title = ?, description = ?, done = ? WHERE id = ?",
-      [title, description || null, done ? true : false, req.params.id]
+      [title.trim(), description || null, done ? true : false, req.params.id]
     );
     if (result.affectedRows === 0) {
-      return res.status(404).json({ status: "error", message: "task not found" });
+      return res.status(404).json({ status: "error", message: "Tarefa nao encontrada" });
     }
     const [rows] = await pool.query("SELECT * FROM tasks WHERE id = ?", [req.params.id]);
     res.json(rows[0]);
@@ -79,10 +90,13 @@ app.put("/tasks/:id", async (req, res) => {
 });
 
 app.delete("/tasks/:id", async (req, res) => {
+  if (!idValido(req.params.id)) {
+    return res.status(400).json({ status: "error", message: "O id da tarefa deve ser um numero valido" });
+  }
   try {
     const [result] = await pool.query("DELETE FROM tasks WHERE id = ?", [req.params.id]);
     if (result.affectedRows === 0) {
-      return res.status(404).json({ status: "error", message: "task not found" });
+      return res.status(404).json({ status: "error", message: "Tarefa nao encontrada" });
     }
     res.json({ status: "ok", deleted: Number(req.params.id) });
   } catch (error) {
